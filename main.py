@@ -74,8 +74,12 @@ except Exception as e:
 raw_rsp = resp.read().decode('unicode-escape')
 dict_rsp = parse_raw_response(raw_rsp)
 
-if dict_rsp.get('ret_code') == 2:
+code = dict_rsp.get('ret_code')
+if code == 2:
     print('你已登录!')
     exit(1)
-
-print(dict_rsp.get('msg'))
+elif code == 1:
+    print('账号不存在')
+    exit(1)
+else:
+    print(dict_rsp.get('msg'), '开始网上冲浪吧!')
