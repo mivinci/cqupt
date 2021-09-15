@@ -1,4 +1,4 @@
-# cqupt-wifi-patcher
+# cqupt-wifi-connector
 
 自动连接校园网的脚本
 
