@@ -1,14 +1,14 @@
 # cqupt-wifi-patcher
 
-解决连上学校 WiFi 后不弹出登录网址的问题...
+自动连接校园网的脚本
 
-解决你不想打开网页输账号密码连接 WiFi 的问题...
+- 解决连上学校 WiFi 后不弹出登录网址的问题...
+- 解决你不想打开网页输账号密码连接 WiFi 的问题...
 
 ## 使用方法
 
-1. 下载或 Clone `main.py` 文件或直接复制里面的内容后粘贴到自己的 `Python` 文件中
-2. 打开 `cmd` (Win) 或 `terminal` (Mac)
-3. 使用 Python 运行它，像这样
+1. 下载或 Clone 该仓库或直接复制 `main.py` 文件里的代码
+2. 使用 Python 运行它，像下面这样
 
 ```bash
 python main.py 0 1111111 666666
