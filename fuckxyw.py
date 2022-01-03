@@ -61,10 +61,10 @@ def login(operator: str, account: str, passwd: str):
             'callback': 'dr1003',
             'login_method': 1,
             'wlan_user_ip': local_ip(),
+            'wlan_user_mac': '000000000000',
             'user_account': f',0,{account}@{operator}',
             'user_password': passwd,
-            'jsVersion': '3.3.3',
-            'v': '2550'
+            'jsVersion': '3.3.3'
         }
 
         url = f'{__url_login}?{urlencode(query)}'
@@ -77,13 +77,19 @@ def login(operator: str, account: str, passwd: str):
     raw_rsp = rsp.read().decode('unicode-escape')
     dict_rsp = parse_raw_response(raw_rsp)
     
-    # logger.info(f'received: {dict_rsp}')
+    logger.info(f'received: {dict_rsp}')
+
+    result = dict_rsp.get('result')
+    if result == '1':
+        logger.info('连接成功')
+        return
 
     code = dict_rsp.get('ret_code')
     if code == 2:
         logger.info('连接成功!')
-    elif code == 1:
-        raise ValueError('账号不存在')
+        return
+
+    raise ValueError('连接失败! 可能原因: 账号密码错误或未关闭代理软件')
 
 
 __schedulor = scheduler(time.time, time.sleep)
@@ -94,6 +100,7 @@ def go(*args):
         login(*args)
     except Exception as e:
         logger.error(e)
+        return
 
     __schedulor.enter(__scheduler_interval, 0, go, args)
     logger.info(f'{__scheduler_interval}s 后会再次自动连接...')
