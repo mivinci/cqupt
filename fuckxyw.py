@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from socket import socket, AF_INET, SOCK_DGRAM
 from sched import scheduler
+from getpass import getpass
 
 import re
 import sys
@@ -41,7 +42,7 @@ def parse_args() -> Tuple[str, str, str]:
     if len(args) != 4:
         op = input('输入账号类型:\n1. 电信\n2. 移动\n输入: ')
         account = input('输入账号: ')
-        passwd = input('输入密码: ')
+        passwd = getpass('输入密码: ')
     else:
         op, account, passwd = args[1], args[2], args[3]
         
@@ -93,7 +94,7 @@ def login(operator: str, account: str, passwd: str):
 
 
 __schedulor = scheduler(time.time, time.sleep)
-__scheduler_interval = 3600  # one hour
+__scheduler_interval = 600  # one hour
 
 def go(*args):
     try:
