@@ -30,7 +30,7 @@ def help():
 def local_ip() -> str:
     try:
         s = socket(AF_INET, SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
+        s.connect(('223.5.5.5', 80))
         ip = s.getsockname()[0]
     finally:
         s.close()
