@@ -1,4 +1,3 @@
-from ast import arg
 from typing import Dict, Tuple, Union, List
 from urllib.parse import urlencode
 from urllib.request import urlopen
