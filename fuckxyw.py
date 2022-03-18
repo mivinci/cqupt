@@ -1,4 +1,5 @@
-from typing import Dict, Tuple
+from ast import arg
+from typing import Dict, Tuple, Union, List
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from socket import socket, AF_INET, SOCK_DGRAM
@@ -20,12 +21,14 @@ __operators = ('xyw', 'telecom', 'cmcc')
 # Fuck OOP!
 logger = logging.Logger('logger')
 handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)-9s - %(filename)-8s : %(lineno)s line - %(message)s'))
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s - %(levelname)-5s - %(filename)-8s : %(lineno)s line - %(message)s'))
 logger.addHandler(handler)
 
 
-def help():
-    pass
+def help(args: List[str]):
+    print(f"参数不完整, 提示:\n python {args[0]} 运营商 账号 密码")
+
 
 def local_ip() -> str:
     try:
@@ -37,47 +40,48 @@ def local_ip() -> str:
     return ip
 
 
-def parse_args() -> Tuple[str, str, str]:
+def parse_args() -> Tuple[str, str, str, int]:
     args = sys.argv
-    if len(args) != 4:
+    if len(args) == 1:  # no args provided
         op = input('输入账号类型:\n1. 电信\n2. 移动\n输入: ')
         account = input('输入账号: ')
         passwd = getpass('输入密码: ')
+        interval = input('重连周期(秒): ')
+    elif len(args) == 5:
+        op, account, passwd, interval = args[1], args[2], args[3], args[4]
     else:
-        op, account, passwd = args[1], args[2], args[3]
-        
-    return __operators[int(op)], account, passwd
+        help(args)
+        exit(1)
+
+    return __operators[int(op)], account, passwd, int(interval)
 
 
-def parse_raw_response(raw_rsp: str) -> Dict[str, str | int]:
+def parse_raw_response(raw_rsp: str) -> Dict[str, Union[str, int]]:
     return json.loads(re.search('(?<=dr1003\().*?(?=\))', raw_rsp).group(0))
 
 
-def login(operator: str, account: str, passwd: str):
+def connect(operator: str, account: str, passwd: str, _: int):
     logger.info('正在连接...')
-    try:
-        query = {
-            'c': 'Portal',
-            'a': 'login',
-            'callback': 'dr1003',
-            'login_method': 1,
-            'wlan_user_ip': local_ip(),
-            'wlan_user_mac': '000000000000',
-            'user_account': f',0,{account}@{operator}',
-            'user_password': passwd,
-            'jsVersion': '3.3.3'
-        }
+    query = {
+        'c': 'Portal',
+        'a': 'login',
+        'callback': 'dr1003',
+        'login_method': 1,
+        'wlan_user_ip': local_ip(),
+        'wlan_user_mac': '000000000000',
+        'user_account': f',0,{account}@{operator}',
+        'user_password': passwd,
+        'jsVersion': '3.3.3'
+    }
 
-        url = f'{__url_login}?{urlencode(query)}'
-        rsp = urlopen(url)
-        if rsp.status != 200:
-            raise ValueError(rsp.status)
-    except Exception as e:
-        raise e  # fuck try..except(catch) !
+    url = f'{__url_login}?{urlencode(query)}'
+    rsp = urlopen(url)
+    if rsp.status != 200:
+        raise ValueError(rsp.status)
 
     raw_rsp = rsp.read().decode('unicode-escape')
     dict_rsp = parse_raw_response(raw_rsp)
-    
+
     logger.info(f'received: {dict_rsp}')
 
     result = dict_rsp.get('result')
@@ -94,22 +98,26 @@ def login(operator: str, account: str, passwd: str):
 
 
 __schedulor = scheduler(time.time, time.sleep)
-__scheduler_interval = 600  # one hour
+
 
 def go(*args):
     try:
-        login(*args)
+        connect(*args)
     except Exception as e:
         logger.error(e)
         return
 
-    __schedulor.enter(__scheduler_interval, 0, go, args)
-    logger.info(f'{__scheduler_interval}s 后会再次自动连接...')
+    interval = args[3]
+    if interval == 0:
+        return
+
+    __schedulor.enter(interval, 0, go, args)
+    logger.info(f'{interval}s 后会再次自动连接...')
+
 
 if __name__ == '__main__':
-    # run at start
     args = parse_args()
+
     go(*args)
 
     __schedulor.run()
-
