@@ -4,11 +4,11 @@ HOST='http://192.168.200.2:801/eportal'
 
 
 if [ $# -ne 3 ]; then
-    printf "This script is for you to log in the CQUPT network. \nYou are supposed to provide 3 arguments formatted as follows:\n You'll then be asked to input your password.\n"
-    printf "\n\tbash $0 {type} {ID} {IP address}\n\n"
-    printf "%-12s: Choose 'cmcc' for China Mobile and 'telecom' for China Telecom.\n" "type"
-    printf "%-12s: Your account identity.\n" "ID"
-    printf "%-12s: The internal IP address given by the network.\n" "IP address"
+    printf "This script is for you to log in the CQUPT network.\nYou are supposed to provide 3 arguments formatted as follows.\nYou'll then be asked to input your password.\n"
+    printf "\n\tsh $0 {type} {id} {address}\n\n"
+    printf "%-7s: Choose 'cmcc' for China Mobile and 'telecom' for China Telecom.\n" "type"
+    printf "%-7s: Your account identity.\n" "id"
+    printf "%-7s: The internal IP address given by the network.\n" "address"
     exit
 fi
 
