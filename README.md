@@ -4,17 +4,18 @@
 
 ## 提示
 
-目前提供 Linux Shell 和 Python 两个脚本，根据你的操作系统和现有环境选择一个使用即可。Python 版支持周期自动重连，可自定义周期，适合频繁断网的情况。可以用 [Git](https://git-scm.com/) 克隆该仓库获取脚本，也可以直接复制粘贴里面的内容。该项目仅供学习，出现的任何问题和作者无关。
+目前提供 Shell 和 Python 两个脚本，根据你的操作系统和现有环境选择一个使用。Python 版支持周期自动重连，可自定义周期，适合频繁断网的情况。可以用 [Git](https://git-scm.com/) 克隆该仓库获取脚本，也可以直接复制粘贴里面的内容。该项目仅供学习，出现的任何问题和作者无关。
 
 
 ## Shell
 
 ```bash
-bash fuckxyw.sh {type} {ID} {password} {IP address}
+sh cqupt.sh {type} {ID} {IP address}
 ```
 
-其中，`type` 为你的网络运营商，是移动就填 `cmcc`，是电信就填 `telecom`。`id` 和 `password` 分别是你的账号和密码，`IP address` 为校园网给你分配的内网 IP 地址。什么？你问我怎么查看这 IP 地址？那你别用这脚本了 :)
+其中，`type` 为你的网络运营商，是移动就填 `cmcc`，是电信就填 `telecom`。`id` 是你的账号，`IP address` 为校园网给你分配的内网 IP 地址。什么？你问我怎么查看这 IP 地址？那你别用这脚本了 :)
 
+然后会提示你输入密码（输入的内容不可见）
 
 ## Python
 
@@ -25,7 +26,7 @@ bash fuckxyw.sh {type} {ID} {password} {IP address}
 不带参数运行。
 
 ```bash
-python fuckxyw.py
+python cqupt.py
 ```
 
 这样会进入输入模式，按照提示输入即可。
@@ -35,7 +36,7 @@ python fuckxyw.py
 也可以直接将参数在运行前传入，如
 
 ```bash
-python fuckxyw.py 1 123456 123456 300
+python cqupt.py 1 123456 123456 300
 ```
 
 第一个参数为运营商，1 表示电信、2 表示移动。第二和第三个参数分别为你校园网的账号和密码。第四个参数为重连周期（秒）用来应对频繁断网的情况，如设置为 300， 则每隔 5 分钟会自动重连。若不需要重连，则设置为 0。
