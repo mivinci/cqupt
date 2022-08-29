@@ -2,13 +2,14 @@
 
 HOST='http://192.168.200.2:801/eportal'
 
-
 if [ $# -ne 3 ]; then
-    printf "This script is for you to log in the CQUPT network.\nYou are supposed to provide 3 arguments formatted as follows.\nYou'll then be asked to input your password.\n"
-    printf "\n\tsh $0 {type} {id} {address}\n\n"
-    printf "%-7s: Choose 'cmcc' for China Mobile and 'telecom' for China Telecom.\n" "type"
-    printf "%-7s: Your account identity.\n" "id"
-    printf "%-7s: The internal IP address given by the network.\n" "address"
+    echo "This script logs your device into the CQUPT network."
+    echo "You need to provide 3 arguments and then input your password."
+    echo "Example:"
+    echo -e "\n    sh $0 {TYPE} {ID} {IP}\n"
+    echo "TYPE  choose 'cmcc' for China Mobile or 'telecom' for China Telecom"
+    echo "ID    unified authentication ID"
+    echo "IP    IP address of you device"
     exit
 fi
 
@@ -29,8 +30,8 @@ echo 'Onboarding...'
 out=`curl -sL $URL`
 
 if [[ $out =~ '"ret_code":2' ]]; then
-    echo 'Have fun! :)'
+    echo 'Connected. Have fun! :)'
     exit
 fi
 
-echo 'Failed! Please make sure all that you provided are correct.'
+echo -e 'Something went wrong. \nPlease check out your input and try again.'
