@@ -60,14 +60,14 @@ select agent in "${!agents[@]}"; do
 done
 
 
-read -p "Local Ipv4 address (Leave it blank to extract automatically): " ipv4
+read -p "Local IPv4 address (Leave it blank to extract automatically): " ipv4
 if [ -z $ipv4 ]; then
     # taken from https://stackoverflow.com/questions/21336126/linux-bash-script-to-extract-ip-address
     ipv4=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 fi
 
 
-read -p "Sign in as '$account, $net, $agent, $ipv4' [Y/n]: " confirm
+read -p "Sign in as '$account, $net, $agent, $ipv4'? [Y/n]: " confirm
 if [[ "$confirm" == "n" ]]; then
     exit 0
 fi
@@ -80,7 +80,7 @@ echo "[INFO] Connecting..."
 
 attempt=3
 for (( i=0; i<$attempt; i++ )); do
-    res=`curl -sL $api`
+    res=`curl -sL -A "${agents[$agent]}" $api`
     echo "[INFO] Attempt ($i/$attempt): $res"
 
     if [[ $res == *"$success_res"* ]]; then
