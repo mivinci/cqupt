@@ -84,7 +84,7 @@ for (( i=0; i<$attempt; i++ )); do
     echo "[INFO] Attempt ($i/$attempt): $res"
 
     if [[ $res == *"$success_res"* ]]; then
-        echo "Connected. Have fun :)"
+        echo "[INFO] Connected. Have fun :)"
         exit
     fi
 
