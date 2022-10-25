@@ -79,7 +79,7 @@ success_res='dr1003({"result":"0","msg":"","ret_code":2})'
 echo "[INFO] Connecting..."
 
 attempt=3
-for (( i=0; i<$attempt; i++ )); do
+for i in $(seq 1 $attempt); do
     res=`curl -sL -A "${agents[$agent]}" $api`
     echo "[INFO] Attempt ($i/$attempt): $res"
 
