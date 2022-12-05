@@ -83,6 +83,7 @@ for i in $(seq 1 $attempt); do
     res=`curl -sL -A "${agents[$agent]}" $api`
     echo "[INFO] Attempt ($i/$attempt): $res"
 
+    # Yea I know.
     if [[ $res == *"$success_res"* ]]; then
         echo "[INFO] Connected. Have fun :)"
         exit
