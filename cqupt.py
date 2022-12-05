@@ -48,7 +48,7 @@ def get_ipv4a(args) -> str:
 
 
 def get_maca(args) -> str:
-    return args.mac.replace(':', '')
+    return args.mac.replace(':', '').replace('-', '').lower()
 
 
 def get_ua(args) -> str:
@@ -112,15 +112,15 @@ def connect(args, attempt = 3) -> bool:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='[%(levelname)-5s] %(message)s')
 
-    parser = ArgumentParser()
-    parser.add_argument('account', help='Specify your unified authentication code')
-    parser.add_argument('--isp', dest='isp', default='cmcc', help='Specify your ISP, choose `cmcc` for China Mobile, `telecom` for China Telecom, `unicom` for Chine Unicom and `xyw` if you are a teacher (default: cmcc)')
-    parser.add_argument('--ipv4-addr', dest='ipv4', default='auto', help='Specify a local IPv4 address (default: auto)')
-    parser.add_argument('--mac-addr', dest='mac', default='00:00:00:00:00:00', help='Specify a mac address (default: 00:00:00:00:00:00)')
-    parser.add_argument('--user-agent', dest='ua', default='linux-firefox', help='Specify a user agent, available options are: android-chrome, ios-safari, macos-safari, windows-edge, linux-firefox (default: linux-firefox)')
-    parser.add_argument('--force-password', dest='passwd', help='Specify your UAC password implicitly (not recommended)')
+    parser = ArgumentParser(description='[cqupt] 0.0.1')
+    parser.add_argument('account', help='specify your unified authentication code')
+    parser.add_argument('--isp', dest='isp', default='cmcc', help='specify your ISP, choose `cmcc` for China Mobile, `telecom` for China Telecom, `unicom` for Chine Unicom and `xyw` if you are a teacher (default: cmcc)')
+    parser.add_argument('--ipv4-addr', dest='ipv4', default='auto', help='specify a local IPv4 address (default: auto)')
+    parser.add_argument('--mac-addr', dest='mac', default='00:00:00:00:00:00', help='specify a physical address (default: 00:00:00:00:00:00)')
+    parser.add_argument('--user-agent', dest='ua', default='linux-firefox', help='specify a user agent, available options are: android-chrome, ios-safari, macos-safari, windows-edge, linux-firefox (default: linux-firefox)')
+    parser.add_argument('--force-password', dest='passwd', help='specify your UAC password implicitly (not recommended)')
     args = parser.parse_args()
     
     connect(args)
