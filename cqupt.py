@@ -29,8 +29,13 @@ def get_uac_passwd(args) -> str:
     passwd = os.getenv('CQUPT_UAC_PASSWORD')
     if passwd:
         return passwd
+
     if not sys.stdin.isatty():
         return sys.stdin.readline().strip('\n')
+
+    if 'passwd' in args:
+        return args.passwd
+
     return getpass(f'[cqupt] password for {args.account}: ')
 
 
@@ -115,6 +120,7 @@ if __name__ == "__main__":
     parser.add_argument('--ipv4-addr', dest='ipv4', default='auto', help='Specify a local IPv4 address (default: auto)')
     parser.add_argument('--mac-addr', dest='mac', default='00:00:00:00:00:00', help='Specify a mac address (default: 00:00:00:00:00:00)')
     parser.add_argument('--user-agent', dest='ua', default='linux-firefox', help='Specify a user agent, available options are: android-chrome, ios-safari, macos-safari, windows-edge, linux-firefox (default: linux-firefox)')
+    parser.add_argument('--force-password', dest='passwd', help='Specify your UAC password implicitly (not recommended)')
     args = parser.parse_args()
     
     connect(args)
