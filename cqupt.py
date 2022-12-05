@@ -33,7 +33,7 @@ def get_uac_passwd(args) -> str:
     if not sys.stdin.isatty():
         return sys.stdin.readline().strip('\n')
 
-    if 'passwd' in args:
+    if args.passwd:
         return args.passwd
 
     return getpass(f'[cqupt] password for {args.account}: ')
