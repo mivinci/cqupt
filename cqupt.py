@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from base64 import b64decode
 from getpass import getpass
 from urllib.request import urlopen, Request
-from socket import socket, AF_INET, SOCK_DGRAM
+import socket
 
 import os
 import sys
@@ -42,9 +42,7 @@ def get_uac_passwd(args) -> str:
 def get_ipv4a(args) -> str:
     if args.ipv4 != 'auto':
         return args.ipv4
-    with socket(AF_INET, SOCK_DGRAM) as sock:
-        sock.connect(('223.5.5.5', 80))
-        return sock.getsockname()[0]
+    return socket.gethostbyname(socket.gethostname())
 
 
 def get_maca(args) -> str:
