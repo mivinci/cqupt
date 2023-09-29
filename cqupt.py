@@ -2,8 +2,7 @@ from argparse import ArgumentParser
 from base64 import b64decode
 from getpass import getpass
 from urllib.request import urlopen, Request
-from socket import socket, AF_INET, SOCK_DGRAM
-
+import socket
 import os
 import sys
 import json
@@ -41,10 +40,8 @@ def get_uac_passwd(args) -> str:
 
 def get_ipv4a(args) -> str:
     if args.ipv4 != 'auto':
-        return args.ipv4
-    with socket(AF_INET, SOCK_DGRAM) as sock:
-        sock.connect(('223.5.5.5', 80))
-        return sock.getsockname()[0]
+        return [args.ipv4]
+    return socket.gethostbyname_ex(socket.gethostname())[2]
 
 
 def get_maca(args) -> str:
@@ -63,65 +60,102 @@ def get_isp(args) -> str:
     return args.isp
 
 
-def try_base64(s: str) -> str:
+def try_decode(s: str) -> str:
     try:
-        return b64decode(s).decode()
+        if s.startswith('\\u'):
+            return bytes(s, 'utf-8').decode('unicode_escape')
+        else:
+            return b64decode(s).decode()
     except:
         return s
 
 
-def connect(args, attempt = 3) -> bool:
+def connect(
+    args,
+    ipv4a,
+    attempt=2,
+) -> bool:
     account = args.account
     passwd = get_uac_passwd(args)
     isp = get_isp(args)
-    ipv4a = get_ipv4a(args)
     maca = get_maca(args)
     agent = get_ua(args)
 
-    logging.info(f'Sign in as {account}@{isp} {ipv4a}({maca}) {args.ua} ...')
+    logging.info(f'正在尝试以 {account}@{isp} {ipv4a}({maca}) {args.ua} 登录...')
 
     url = f'{PORTAL}?c=Portal&a=login&callback=dr1003&login_method=1&wlan_user_ip={ipv4a}&wlan_user_mac={maca}&user_account=,0,{account}@{isp}&user_password={passwd}&jsVersion=3.3.3'
     req = Request(url)
     req.add_header('Host', HOST)
     req.add_header('Referer', REFERER)
     req.add_header('User-Agent', agent)
-    
-    possible_cause = 'unknown'
+
     for i in range(attempt):
         with urlopen(req) as res:
             res_raw = res.read().decode()[7:-1]
             res_dict = json.loads(res_raw)
-
-            logging.info(f'Attempt ({i+1}/{attempt}): {res_raw}')
-        
-            if res_dict['result'] == "0" and res_dict['ret_code'] == 2:
-                logging.info('Succeed. Have fun :)')
+            logging.info(f'Attempt ({i+1}/{attempt})')
+            if res_dict['result'] == '1' and try_decode(res_dict['msg'] == '认证成功'):
+                logging.info(f'Succeed. Have fun :)')
                 return True
-
-            cause = res_dict['msg']
-            if cause:
-                possible_cause = try_base64(cause)
-
+            elif res_dict['result'] == '0':
+                code = res_dict['ret_code']
+                msg_raw = res_dict['msg']
+                if code == 1:
+                    msg = '错误的内网ip' if msg_raw == '' else try_decode(msg_raw)
+                    logging.info(msg)
+                    logging.info('切换内网ip，再次尝试登录')
+                    return False
+                elif code == 2:
+                    logging.info('您已经登录')
+                    return True
+                else:
+                    logging.info('未知错误')
             time.sleep(1.0)
-    
-    logging.error(f'Failed to sign in, reason: {possible_cause}')
     return False
 
 
+def run(args) -> bool:
+    ipv4a_list = get_ipv4a(args)
+    for ipv4a in ipv4a_list:
+        if connect(args, ipv4a):
+            return True
+    return False
 
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='[%(levelname)-5s] %(message)s')
 
     parser = ArgumentParser(description='[cqupt] 0.0.1')
     parser.add_argument('account', help='specify your unified authentication code')
-    parser.add_argument('--isp', dest='isp', default='cmcc', help='specify your ISP, choose `cmcc` for China Mobile, `telecom` for China Telecom, `unicom` for Chine Unicom and `xyw` if you are a teacher (default: cmcc)')
-    parser.add_argument('--ipv4-addr', dest='ipv4', default='auto', help='specify a local IPv4 address (default: auto)')
-    parser.add_argument('--mac-addr', dest='mac', default='00:00:00:00:00:00', help='specify a physical address (default: 00:00:00:00:00:00)')
-    parser.add_argument('--user-agent', dest='ua', default='linux-firefox', help='specify a user agent, available options are: android-chrome, ios-safari, macos-safari, windows-edge, linux-firefox (default: linux-firefox)')
-    parser.add_argument('--force-password', dest='passwd', help='specify your UAC password implicitly (not recommended)')
+    parser.add_argument(
+        '--isp',
+        dest='isp',
+        default='cmcc',
+        help='specify your ISP, choose `cmcc` for China Mobile, `telecom` for China Telecom, `unicom` for Chine Unicom and `xyw` if you are a teacher (default: cmcc)',
+    )
+    parser.add_argument(
+        '--ipv4-addr',
+        dest='ipv4',
+        default='auto',
+        help='specify a local IPv4 address (default: auto)',
+    )
+    parser.add_argument(
+        '--mac-addr',
+        dest='mac',
+        default='00:00:00:00:00:00',
+        help='specify a physical address (default: 00:00:00:00:00:00)',
+    )
+    parser.add_argument(
+        '--user-agent',
+        dest='ua',
+        default='linux-firefox',
+        help='specify a user agent, available options are: android-chrome, ios-safari, macos-safari, windows-edge, linux-firefox (default: linux-firefox)',
+    )
+    parser.add_argument(
+        '--force-password',
+        dest='passwd',
+        help='specify your UAC password implicitly (not recommended)',
+    )
     args = parser.parse_args()
-    
-    connect(args)
-    
+
+    run(args)
