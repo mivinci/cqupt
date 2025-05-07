@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 from base64 import b64decode
 from getpass import getpass
-import re
 from urllib.request import urlopen, Request
+import re
 import socket
 import os
 import sys
@@ -70,7 +70,7 @@ def try_decode(s: str) -> str:
     except:
         return s
 
-def extract(varname, html: str) -> str:
+def extract(varname: str, html: str) -> str:
     m = re.search(rf"{varname}\s*=\s*['\"]([^'\"]+)['\"]", html)
     return m.group(1) if m else None
 
